@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="/src/styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KeFeng Toolkits</title>
+    <script type="module" src="/src/main.ts" defer></script>
+  </head>
+
+  <body>
+    <div class="window-shell">
+      <header class="titlebar">
+        <div class="titlebar__drag" data-tauri-drag-region aria-hidden="true"></div>
+
+        <div class="titlebar__brand">
+          <span class="titlebar__logo" aria-hidden="true">K</span>
+          <span class="titlebar__title">KeFeng Toolkits</span>
+        </div>
+
+        <div class="titlebar__spacer" aria-hidden="true"></div>
+
+        <div class="titlebar__controls">
+          <button
+            class="titlebar__button"
+            id="window-minimize"
+            type="button"
+            aria-label="最小化"
+            title="最小化"
+          >
+            <svg
+              viewBox="0 0 10 10"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <path d="M1.5 5h7" />
+            </svg>
+          </button>
+
+          <button
+            class="titlebar__button"
+            id="window-maximize"
+            type="button"
+            aria-label="最大化"
+            title="最大化"
+          >
+            <svg
+              class="titlebar__icon"
+              data-icon="maximize"
+              viewBox="0 0 10 10"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1"
+              aria-hidden="true"
+            >
+              <rect x="1.5" y="1.5" width="7" height="7" rx="0.5" />
+            </svg>
+            <svg
+              class="titlebar__icon"
+              data-icon="restore"
+              viewBox="0 0 10 10"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1"
+              aria-hidden="true"
+              hidden
+            >
+              <rect x="1.5" y="3" width="5.5" height="5.5" rx="0.5" />
+              <path d="M3.5 3V1.5h5v5h-1.5" />
+            </svg>
+          </button>
+
+          <button
+            class="titlebar__button titlebar__button--close"
+            id="window-close"
+            type="button"
+            aria-label="关闭"
+            title="关闭"
+          >
+            <svg
+              viewBox="0 0 10 10"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <path d="M1.5 1.5l7 7M8.5 1.5l-7 7" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="app">
+        <aside class="sidebar">
+          <section class="sidebar-status" aria-label="状态信息">
+            <div class="sidebar-status__brand">
+              <span class="sidebar-status__logo" data-role="status-logo" aria-hidden="true">K</span>
+              <span class="sidebar-status__name" data-role="status-name">科烽智能科技</span>
+            </div>
+
+            <div class="sidebar-status__date" data-role="status-date"></div>
+            <div class="sidebar-status__time" data-role="status-time"></div>
+            <div class="sidebar-status__hours" data-role="status-hours">
+              您本月已工作 <strong>0.00</strong> 小时
+            </div>
+            <div
+              class="sidebar-status__hours sidebar-status__hours--rest"
+              data-role="status-rest-hours"
+            >
+              您本月已休息 <strong>0.00</strong> 小时
+            </div>
+          </section>
+
+          <nav class="sidebar__nav" id="tool-nav" aria-label="工具导航"></nav>
+
+          <div class="sidebar__footer">v1.0.0</div>
+        </aside>
+
+        <main class="content">
+          <header class="content__header">
+            <h1 class="content__title" id="page-title">工具箱</h1>
+            <p class="content__subtitle" id="page-subtitle">
+              从左侧选择要使用的工具。
+            </p>
+          </header>
+
+          <section class="content__body" id="page-body"></section>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>
