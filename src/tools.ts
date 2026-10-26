@@ -1,4 +1,5 @@
 import { monthlyReportTool } from "./tools/monthly-report";
+import { reimbursementTool } from "./tools/reimbursement";
 
 export interface ToolHandle {
   dispose(): void;
@@ -21,6 +22,7 @@ export const DEFAULT_TOOL_ID = "monthly-report";
 
 export const tools: Tool[] = [
   monthlyReportTool,
+  reimbursementTool,
   {
     id: "settings",
     name: "设置",

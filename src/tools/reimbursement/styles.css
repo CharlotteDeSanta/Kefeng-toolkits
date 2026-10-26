@@ -1,0 +1,593 @@
+body[data-active-tool="reimbursement"] .content__header {
+  padding: 16px 24px 12px;
+}
+
+body[data-active-tool="reimbursement"] .content__body {
+  display: flex;
+  min-width: 0;
+  padding: 14px 20px 12px;
+  overflow: hidden;
+}
+
+.reimbursement {
+  --rb-danger: #c42b1c;
+  --rb-success: #15803d;
+  --rb-warning: #a16207;
+
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+}
+
+@media (prefers-color-scheme: dark) {
+  .reimbursement {
+    --rb-danger: #f87171;
+    --rb-success: #4ade80;
+    --rb-warning: #fbbf24;
+  }
+}
+
+/* ---------- 工具栏 ---------- */
+
+.rb-toolbar {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  min-width: 0;
+}
+
+.rb-add {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rb-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.rb-tabs {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 4px;
+  min-width: 160px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.rb-tabs::-webkit-scrollbar {
+  height: 5px;
+}
+
+.rb-tabs::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: var(--border);
+}
+
+.rb-tab {
+  flex: none;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--bg);
+  color: var(--text-muted);
+  font-size: 12.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.rb-tab:hover {
+  background: var(--bg-subtle);
+  color: var(--text);
+}
+
+.rb-tab.is-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.rb-select,
+.rb-input {
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 12.5px;
+  outline: none;
+}
+
+.rb-select--small {
+  height: 26px;
+  padding: 0 6px;
+  font-size: 12px;
+}
+
+.rb-select:focus,
+.rb-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+.rb-button {
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 120ms ease, filter 120ms ease;
+}
+
+.rb-button:hover:not(:disabled) {
+  background: var(--bg-subtle);
+}
+
+.rb-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.rb-button--primary {
+  border-color: transparent;
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.rb-button--primary:hover:not(:disabled) {
+  background: var(--accent);
+  filter: brightness(1.05);
+}
+
+.rb-button--danger {
+  border-color: #f2b8b5;
+  background: #fff5f4;
+  color: #b42318;
+}
+
+.rb-button--danger:hover:not(:disabled) {
+  background: #ffe9e7;
+}
+
+@media (prefers-color-scheme: dark) {
+  .rb-button--primary {
+    color: #0b1220;
+  }
+
+  .rb-button--danger {
+    border-color: #5b2626;
+    background: #2a1717;
+    color: #fca5a5;
+  }
+
+  .rb-button--danger:hover:not(:disabled) {
+    background: #3a1d1d;
+  }
+}
+
+.rb-button:focus-visible,
+.rb-tab:focus-visible,
+.rb-icon-button:focus-visible,
+.rb-link-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------- 编辑器 ---------- */
+
+.rb-editor {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+}
+
+.rb-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px 16px 18px;
+}
+
+.rb-form__head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.rb-form__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.rb-badge {
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
+
+.rb-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px 10px;
+}
+
+.rb-fields--compact {
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+}
+
+.rb-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.rb-field__label {
+  color: var(--text-subtle);
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+}
+
+.rb-field .rb-input,
+.rb-field .rb-select {
+  width: 100%;
+}
+
+.rb-input--amount {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 明细表 ---------- */
+
+.rb-table-wrap {
+  width: 100%;
+  max-height: 52vh;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.rb-table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 12.5px;
+}
+
+.rb-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 6px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+  font-size: 11.5px;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.rb-table td {
+  padding: 2px 3px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.rb-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.rb-table th:last-child,
+.rb-table td:last-child {
+  border-right: 0;
+}
+
+.rb-th-index,
+.rb-td-index {
+  width: 44px;
+  text-align: center;
+  color: var(--text-subtle);
+  font-variant-numeric: tabular-nums;
+}
+
+.rb-table .rb-input {
+  width: 100%;
+  height: 26px;
+  padding: 0 5px;
+  border-color: transparent;
+  background: transparent;
+}
+
+.rb-table .rb-input:hover {
+  border-color: var(--border);
+}
+
+.rb-table .rb-input:focus {
+  border-color: var(--accent);
+  background: var(--bg);
+}
+
+.rb-distance {
+  padding-right: 8px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* ---------- 汇总 ---------- */
+
+.rb-summary {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(320px, 1.25fr);
+  gap: 10px;
+}
+
+.rb-panel {
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.rb-panel__title {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.rb-summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 3px 0;
+  border-bottom: 1px dashed var(--border);
+  font-size: 12.5px;
+}
+
+.rb-summary-row:last-child {
+  border-bottom: 0;
+}
+
+.rb-summary-label {
+  color: var(--text-muted);
+}
+
+.rb-summary-value {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.rb-summary-row--wide {
+  align-items: flex-start;
+}
+
+.rb-summary-uppercase {
+  color: var(--accent);
+  font-weight: 500;
+  text-align: right;
+  word-break: break-all;
+}
+
+.rb-extras {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 6px 8px;
+  margin-bottom: 9px;
+}
+
+.rb-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 100%;
+  min-height: 280px;
+  padding: 24px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.rb-empty h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: 17px;
+}
+
+.rb-empty p {
+  max-width: 440px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* ---------- 发票 ---------- */
+
+.rb-invoices {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 170px;
+  padding: 8px 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.rb-invoices__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.rb-inline-field {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.rb-invoice-summary {
+  margin-left: auto;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.rb-invoices__list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 0;
+  overflow: auto;
+}
+
+.rb-invoice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.rb-invoice__info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.rb-invoice__name {
+  overflow: hidden;
+  color: var(--text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rb-invoice__meta {
+  color: var(--text-subtle);
+  font-size: 11px;
+}
+
+.rb-invoice__actions {
+  display: flex;
+  flex: none;
+  gap: 4px;
+}
+
+.rb-icon-button {
+  height: 24px;
+  padding: 0 7px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--bg);
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.rb-icon-button:hover:not(:disabled) {
+  background: var(--bg-subtle);
+  color: var(--text);
+}
+
+.rb-icon-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.rb-icon-button--danger {
+  color: var(--rb-danger);
+}
+
+/* ---------- 状态与忙碌 ---------- */
+
+.rb-status {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-height: 18px;
+  font-size: 12.5px;
+  white-space: pre-wrap;
+}
+
+.rb-status--info {
+  color: var(--text-muted);
+}
+
+.rb-status--success {
+  color: var(--rb-success);
+}
+
+.rb-status--warning {
+  color: var(--rb-warning);
+}
+
+.rb-status--error {
+  color: var(--rb-danger);
+  font-weight: 500;
+}
+
+.rb-link-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-size: 12.5px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.reimbursement.is-busy .rb-editor,
+.reimbursement.is-busy .rb-tabs,
+.reimbursement.is-busy .rb-actions,
+.reimbursement.is-busy .rb-invoices {
+  pointer-events: none;
+  opacity: 0.72;
+}
+
+@media (max-width: 1180px) {
+  .rb-summary {
+    grid-template-columns: 1fr;
+  }
+}

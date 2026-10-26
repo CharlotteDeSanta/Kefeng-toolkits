@@ -12,11 +12,14 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@pdf-lib/fontkit": "^1.1.1",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-dialog": "^2.8.3",
     "@tauri-apps/plugin-http": "^2.8.3",
     "@tauri-apps/plugin-opener": "^2",
-    "exceljs": "^4.4.0"
+    "exceljs": "^4.4.0",
+    "hb-subset-wasm": "^0.4.0",
+    "pdf-lib": "^1.17.1"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2",

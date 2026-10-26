@@ -2033,6 +2033,7 @@ dependencies = [
 name = "kefeng-toolkits"
 version = "1.0.0"
 dependencies = [
+ "percent-encoding",
  "serde",
  "serde_json",
  "tauri",
