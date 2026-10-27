@@ -173,8 +173,8 @@ export function initSidebarStatus(): void {
     const summary =
       liveSummary?.key === key ? liveSummary : readDraftSummary(period);
 
-    setMetric(hoursEl, "您本月已工作 ", summary.workHours);
-    setMetric(restHoursEl, "您本月已休息 ", summary.restHours);
+    setMetric(hoursEl, "本月已工作 ", summary.workHours);
+    setMetric(restHoursEl, "本月已休息 ", summary.restHours);
   };
 
   const tick = (): void => {
