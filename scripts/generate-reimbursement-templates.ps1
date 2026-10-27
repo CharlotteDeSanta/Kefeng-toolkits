@@ -53,6 +53,17 @@ function New-Field($Worksheet, [string]$Address, [double]$PrintLeft, [double]$Pr
   }
 }
 
+function New-ImageField($Worksheet, [string]$Address, [double]$PrintLeft, [double]$PrintTop, [double]$Scale, [double]$Padding = 2, [double]$GrowDown = 0) {
+  $field = New-Field $Worksheet $Address $PrintLeft $PrintTop $Scale
+  $field | Add-Member -NotePropertyName image -NotePropertyValue $true
+  $field | Add-Member -NotePropertyName padding -NotePropertyValue $Padding
+  if ($GrowDown -ne 0) {
+    $field.y = [math]::Round($field.y - $GrowDown, 2)
+    $field.height = [math]::Round($field.height + $GrowDown, 2)
+  }
+  return $field
+}
+
 function Build-TravelFields($Worksheet, [double]$PrintLeft, [double]$PrintTop, [double]$Scale) {
   $fields = [ordered]@{}
   $fields.number = New-Field $Worksheet "C2:D2" $PrintLeft $PrintTop $Scale
@@ -103,6 +114,13 @@ function Build-TravelFields($Worksheet, [double]$PrintLeft, [double]$PrintTop, [
   $fields.payable = New-Field $Worksheet "P38:Q38" $PrintLeft $PrintTop $Scale
   $fields.attachmentCount = New-Field $Worksheet "R8:R10" $PrintLeft $PrintTop $Scale
 
+  $fields.approvals = [ordered]@{
+    reviewer = New-Field $Worksheet "C39:D39" $PrintLeft $PrintTop $Scale
+    cashier = New-Field $Worksheet "G39:I39" $PrintLeft $PrintTop $Scale
+    supervisor = New-Field $Worksheet "K39:M39" $PrintLeft $PrintTop $Scale
+  }
+  $fields.signature = New-ImageField $Worksheet "P39:R39" $PrintLeft $PrintTop $Scale 2 9.75
+
   return [pscustomobject]$fields
 }
 
@@ -138,6 +156,14 @@ function Build-GeneralFields($Worksheet, [double]$PrintLeft, [double]$PrintTop, 
   $fields.totalDigits = $totalDigits
   $fields.attachmentCount = New-Field $Worksheet "T7:T8" $PrintLeft $PrintTop $Scale
 
+  $fields.approvals = [ordered]@{
+    supervisor = New-Field $Worksheet "E26:I26" $PrintLeft $PrintTop $Scale
+    reviewer = New-Field $Worksheet "C27:F27" $PrintLeft $PrintTop $Scale
+    cashier = New-Field $Worksheet "H27:M27" $PrintLeft $PrintTop $Scale
+    reimburser = New-Field $Worksheet "R27:S27" $PrintLeft $PrintTop $Scale
+  }
+  $fields.signature = New-ImageField $Worksheet "S26" $PrintLeft $PrintTop $Scale 3
+
   return [pscustomobject]$fields
 }
 
@@ -166,6 +192,14 @@ function Build-SummaryFields($Worksheet, [double]$PrintLeft, [double]$PrintTop, 
 
   $fields.uppercase = New-Field $Worksheet "G24:S24" $PrintLeft $PrintTop $Scale
   $fields.total = New-Field $Worksheet "H25:R25" $PrintLeft $PrintTop $Scale
+
+  $fields.approvals = [ordered]@{
+    reviewer = New-Field $Worksheet "C26:D26" $PrintLeft $PrintTop $Scale
+    finance = New-Field $Worksheet "F26:G26" $PrintLeft $PrintTop $Scale
+    cashier = New-Field $Worksheet "I26:J26" $PrintLeft $PrintTop $Scale
+    supervisor = New-Field $Worksheet "N26:P26" $PrintLeft $PrintTop $Scale
+  }
+  $fields.signature = New-ImageField $Worksheet "S26" $PrintLeft $PrintTop $Scale 2
 
   return [pscustomobject]$fields
 }
@@ -201,6 +235,12 @@ function Build-PrivateCarFields($Worksheet, [double]$PrintLeft, [double]$PrintTo
 
   $fields.totalDistance = New-Field $Worksheet "D46" $PrintLeft $PrintTop $Scale
   $fields.fee = New-Field $Worksheet "H46" $PrintLeft $PrintTop $Scale
+
+  $fields.approvals = [ordered]@{
+    reviewer = New-Field $Worksheet "C47:D47" $PrintLeft $PrintTop $Scale
+    cashier = New-Field $Worksheet "F47:G47" $PrintLeft $PrintTop $Scale
+  }
+  $fields.signature = New-ImageField $Worksheet "I47" $PrintLeft $PrintTop $Scale 2 10.5
 
   return [pscustomobject]$fields
 }

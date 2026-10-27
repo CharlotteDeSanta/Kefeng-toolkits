@@ -7,20 +7,29 @@ import {
   createInstance,
 } from "./forms/defaults";
 import { validateInstances } from "./forms/validation";
-import { savePdfFile, revealExport } from "./services/files";
+import {
+  pickSignaturePath,
+  readImageFile,
+  savePdfFile,
+  revealExport,
+} from "./services/files";
 import { importInvoices } from "./services/invoices";
 import { buildReimbursementPdf } from "./services/pdf";
+import { prepareSignatureImage } from "./services/signature";
 import { ReimbursementStorage } from "./services/storage";
 import {
   createReimbursementView,
   type ReimbursementViewState,
 } from "./view";
-import type {
-  FormInstance,
-  FormType,
-  InvoiceItem,
-  NupCount,
-  ReimbursementDraft,
+import {
+  APPROVAL_KEYS,
+  type ApprovalKey,
+  type FormInstance,
+  type FormType,
+  type InvoiceItem,
+  type NupCount,
+  type ReimbursementDraft,
+  type SignatureImage,
 } from "./types";
 
 function timestampName(): string {
@@ -46,6 +55,13 @@ function setTopLevelField(
   field: string,
   value: string,
 ): void {
+  if (field.startsWith("approvals.")) {
+    const key = field.slice("approvals.".length) as ApprovalKey;
+    if ((APPROVAL_KEYS as readonly string[]).includes(key)) {
+      (instance.data.approvals as Record<ApprovalKey, string>)[key] = value;
+    }
+    return;
+  }
   if (field.startsWith("extras.")) {
     if (instance.type !== "travel") return;
     const key = field.slice("extras.".length);
@@ -75,6 +91,7 @@ export function mountReimbursement(container: HTMLElement): ToolHandle {
   let activeInstanceId: string | null = null;
   let nup: NupCount = 2;
   let invoices: InvoiceItem[] = [];
+  let signature: SignatureImage | null = null;
   let busy = false;
   let saveTimer: number | null = null;
   let disposed = false;
@@ -91,11 +108,19 @@ export function mountReimbursement(container: HTMLElement): ToolHandle {
     loadNotice = loaded.error;
   }
 
+  const loadedSignature = storage.loadSignature();
+  if (!loadedSignature.ok) {
+    loadNotice = [loadNotice, loadedSignature.error].filter(Boolean).join("\n");
+  } else {
+    signature = loadedSignature.value;
+  }
+
   const state = (): ReimbursementViewState => ({
     instances,
     activeInstanceId,
     nup,
     invoices,
+    signature,
   });
 
   const view = createReimbursementView(container, {
@@ -171,6 +196,12 @@ export function mountReimbursement(container: HTMLElement): ToolHandle {
     },
     onImportInvoices: () => {
       void importInvoiceFiles();
+    },
+    onChooseSignature: () => {
+      void chooseSignature();
+    },
+    onClearSignature: () => {
+      void clearSignature();
     },
     onRemoveInvoice: (id) => {
       if (busy) return;
@@ -269,6 +300,58 @@ export function mountReimbursement(container: HTMLElement): ToolHandle {
     }
   }
 
+  function baseName(path: string): string {
+    const parts = path.split(/[\\/]/);
+    return parts[parts.length - 1] || path;
+  }
+
+  async function chooseSignature(): Promise<void> {
+    if (busy) return;
+    try {
+      const path = await pickSignaturePath();
+      if (!path) return;
+
+      busy = true;
+      view.setBusy(true, "正在读取签名…", "正在读取签名…");
+      const bytes = await readImageFile(path);
+      const prepared = await prepareSignatureImage(bytes, baseName(path));
+      const saved = storage.saveSignature(prepared);
+      if (!saved.ok) {
+        throw new Error(saved.error);
+      }
+
+      signature = prepared;
+      view.render(state());
+      view.setStatus(`已设置签名：${prepared.fileName}`, "success");
+    } catch (error) {
+      view.setStatus(
+        error instanceof Error ? error.message : String(error),
+        "error",
+      );
+    } finally {
+      busy = false;
+      view.setBusy(false);
+    }
+  }
+
+  async function clearSignature(): Promise<void> {
+    if (busy || !signature) return;
+    const confirmed = await askConfirm(
+      "确定清除已保存的电子签名？",
+      "清除签名",
+    );
+    if (!confirmed || busy) return;
+
+    const result = storage.clearSignature();
+    if (!result.ok) {
+      view.setStatus(result.error, "error");
+      return;
+    }
+    signature = null;
+    view.render(state());
+    view.setStatus("已清除电子签名", "info");
+  }
+
   async function exportPdf(): Promise<void> {
     if (busy) return;
 
@@ -289,6 +372,7 @@ export function mountReimbursement(container: HTMLElement): ToolHandle {
         instances,
         invoices,
         nup,
+        signature,
         onProgress: (message) => view.setStatus(message, "info"),
       });
       const result = await savePdfFile(

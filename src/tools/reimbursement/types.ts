@@ -8,6 +8,25 @@ export const FORM_LABELS: Record<FormType, string> = {
   "private-car": "私车公用报销单",
 };
 
+/** 签批栏可填写的姓名键；不同模板只使用其中的一部分。 */
+export const APPROVAL_KEYS = [
+  "reviewer",
+  "finance",
+  "cashier",
+  "supervisor",
+  "reimburser",
+] as const;
+
+export type ApprovalKey = (typeof APPROVAL_KEYS)[number];
+
+export interface ApprovalInfo {
+  reviewer: string;
+  finance: string;
+  cashier: string;
+  supervisor: string;
+  reimburser: string;
+}
+
 export interface TravelRow {
   departDate: string;
   departHour: string;
@@ -48,6 +67,7 @@ export interface TravelData {
   extras: TravelExtras;
   prepayment: string;
   attachmentCount: string;
+  approvals: ApprovalInfo;
 }
 
 export interface GeneralRow {
@@ -62,6 +82,7 @@ export interface GeneralData {
   date: string;
   rows: GeneralRow[];
   attachmentCount: string;
+  approvals: ApprovalInfo;
 }
 
 export interface SummaryRow {
@@ -74,6 +95,7 @@ export interface SummaryRow {
 export interface SummaryData {
   date: string;
   rows: SummaryRow[];
+  approvals: ApprovalInfo;
 }
 
 export interface PrivateCarTrip {
@@ -93,6 +115,7 @@ export interface PrivateCarData {
   purpose: string;
   rate: string;
   trips: PrivateCarTrip[];
+  approvals: ApprovalInfo;
 }
 
 export interface TravelInstance {
@@ -140,6 +163,17 @@ export interface InvoiceItem {
   size: number;
 }
 
+export type SignatureMime = "image/png" | "image/jpeg";
+
+/** 个人电子签名：以 data URL 保存在本机，不随草稿或导出文件上传。 */
+export interface SignatureImage {
+  dataUrl: string;
+  mime: SignatureMime;
+  fileName: string;
+  width: number;
+  height: number;
+}
+
 export interface ReimbursementDraft {
   schemaVersion: 1;
   instances: FormInstance[];
@@ -159,8 +193,20 @@ export interface PdfField {
   wrap: boolean;
 }
 
+/** 签名图片字段：只描述矩形，文字字段继续用 PdfField。 */
+export interface PdfImageField {
+  address: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  image: true;
+  padding?: number;
+}
+
 export type PdfFieldNode =
   | PdfField
+  | PdfImageField
   | PdfFieldNode[]
   | { [key: string]: PdfFieldNode };
 
@@ -178,6 +224,21 @@ export function isPdfField(node: unknown): node is PdfField {
   return (
     typeof node === "object" &&
     node !== null &&
+    !("image" in node) &&
+    "address" in node &&
+    "x" in node &&
+    "y" in node &&
+    "width" in node &&
+    "height" in node
+  );
+}
+
+export function isPdfImageField(node: unknown): node is PdfImageField {
+  return (
+    typeof node === "object" &&
+    node !== null &&
+    "image" in node &&
+    node.image === true &&
     "address" in node &&
     "x" in node &&
     "y" in node &&

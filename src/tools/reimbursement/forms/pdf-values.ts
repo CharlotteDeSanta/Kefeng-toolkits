@@ -1,4 +1,5 @@
 import type {
+  ApprovalInfo,
   FormInstance,
   GeneralData,
   PrivateCarData,
@@ -88,6 +89,16 @@ function totalDigits(cents: number): string[] {
   return centsToDigits(cents);
 }
 
+function approvalValues(approvals: ApprovalInfo): Record<string, string> {
+  return {
+    reviewer: approvals.reviewer.trim(),
+    finance: approvals.finance.trim(),
+    cashier: approvals.cashier.trim(),
+    supervisor: approvals.supervisor.trim(),
+    reimburser: approvals.reimburser.trim(),
+  };
+}
+
 function travelValues(data: TravelData): Record<string, unknown> {
   const topDate = splitIsoDate(data.date) ?? emptyDateParts();
   const totals = computeTravelTotals(data);
@@ -144,6 +155,7 @@ function travelValues(data: TravelData): Record<string, unknown> {
     prepayment: rowAmount(data.prepayment),
     payable: formatCents(totals.payable),
     attachmentCount: data.attachmentCount.trim(),
+    approvals: approvalValues(data.approvals),
   };
 }
 
@@ -171,6 +183,7 @@ function generalValues(data: GeneralData): Record<string, unknown> {
     uppercase: totals.uppercase,
     totalDigits: totalDigits(totals.total),
     attachmentCount: data.attachmentCount.trim(),
+    approvals: approvalValues(data.approvals),
   };
 }
 
@@ -196,6 +209,7 @@ function summaryValues(data: SummaryData): Record<string, unknown> {
     rows,
     uppercase: totals.uppercase,
     total: totals.total > 0 ? formatCents(totals.total) : "",
+    approvals: approvalValues(data.approvals),
   };
 }
 
@@ -231,6 +245,7 @@ function privateCarValues(data: PrivateCarData): Record<string, unknown> {
     totalDistance:
       totals.totalDistance > 0 ? formatDistance(totals.totalDistance) : "",
     fee: totals.fee > 0 ? totals.fee.toFixed(2) : "",
+    approvals: approvalValues(data.approvals),
   };
 }
 

@@ -38,6 +38,25 @@ export async function readPdfFile(path: string): Promise<Uint8Array> {
   return new Uint8Array(buffer);
 }
 
+export async function pickSignaturePath(): Promise<string | null> {
+  requireTauri();
+  const selected = await open({
+    multiple: false,
+    directory: false,
+    filters: [{ name: "签名图片", extensions: ["png", "jpg", "jpeg"] }],
+  });
+  if (selected === null) {
+    return null;
+  }
+  return Array.isArray(selected) ? selected[0] ?? null : selected;
+}
+
+export async function readImageFile(path: string): Promise<Uint8Array> {
+  requireTauri();
+  const buffer = await invoke<ArrayBuffer>("read_image_file", { path });
+  return new Uint8Array(buffer);
+}
+
 export async function savePdfFile(
   defaultName: string,
   bytes: Uint8Array,

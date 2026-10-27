@@ -5,7 +5,12 @@ import {
   type FormType,
   type InvoiceItem,
   type NupCount,
+  type SignatureImage,
 } from "./types";
+import {
+  APPROVAL_TEXT_FIELDS,
+  hasSignatureField,
+} from "./forms/approvals";
 import {
   computeGeneralTotals,
   computePrivateCarTotals,
@@ -23,6 +28,7 @@ export interface ReimbursementViewState {
   activeInstanceId: string | null;
   nup: NupCount;
   invoices: readonly InvoiceItem[];
+  signature: SignatureImage | null;
 }
 
 export interface ReimbursementViewHandlers {
@@ -38,6 +44,8 @@ export interface ReimbursementViewHandlers {
     value: string,
   ): void;
   onImportInvoices(): void;
+  onChooseSignature(): void;
+  onClearSignature(): void;
   onRemoveInvoice(id: string): void;
   onMoveInvoice(id: string, direction: -1 | 1): void;
   onNupChange(nup: NupCount): void;
@@ -50,7 +58,7 @@ export interface ReimbursementView {
   updateSummary(instance: FormInstance): void;
   updatePrivateCarDistance(rowIndex: number, value: string): void;
   setStatus(text: string, level: StatusLevel, revealPath?: string): void;
-  setBusy(busy: boolean, text?: string): void;
+  setBusy(busy: boolean, text?: string, busyLabel?: string): void;
   dispose(): void;
 }
 
@@ -535,7 +543,98 @@ export function createReimbursementView(
     return wrapper;
   }
 
-  function renderEditor(instance: FormInstance | null): void {
+  function renderSignature(signature: SignatureImage | null): HTMLElement {
+    const wrapper = element("div", "rb-signature");
+    wrapper.append(element("span", "rb-signature__title", "报销人签名"));
+
+    const preview = element("div", "rb-signature__preview");
+    if (signature) {
+      const image = element("img");
+      image.src = signature.dataUrl;
+      image.alt = "电子签名";
+      preview.append(image);
+    } else {
+      preview.append(element("span", "rb-signature__empty", "未设置签名"));
+    }
+
+    const actions = element("div", "rb-signature__actions");
+    const pickButton = button(signature ? "更换图片" : "选择图片");
+    pickButton.dataset.signatureAction = "pick";
+    pickButton.disabled = busy;
+    pickButton.addEventListener(
+      "click",
+      () => {
+        if (!busy) {
+          handlers.onChooseSignature();
+        }
+      },
+      { signal },
+    );
+    actions.append(pickButton);
+
+    if (signature) {
+      const clearButton = button("清除", "rb-button rb-button--danger");
+      clearButton.dataset.signatureAction = "clear";
+      clearButton.disabled = busy;
+      clearButton.addEventListener(
+        "click",
+        () => {
+          if (!busy) {
+            handlers.onClearSignature();
+          }
+        },
+        { signal },
+      );
+      actions.append(clearButton);
+    }
+
+    wrapper.append(
+      preview,
+      actions,
+      element(
+        "p",
+        "rb-signature__hint",
+        "支持 JPG/PNG，仅保存在本机；导出时放入模板的报销人签名格。",
+      ),
+    );
+    return wrapper;
+  }
+
+  function renderApprovals(
+    instance: FormInstance,
+    signature: SignatureImage | null,
+  ): HTMLElement {
+    const panel = element("section", "rb-panel rb-approvals");
+    panel.append(element("h3", "rb-panel__title", "签批信息"));
+
+    const fields = element("div", "rb-fields rb-fields--approvals");
+    for (const field of APPROVAL_TEXT_FIELDS[instance.type]) {
+      fields.append(
+        fieldRow(
+          field.label,
+          createInput(
+            `approvals.${field.key}`,
+            instance.data.approvals[field.key],
+            "text",
+            null,
+          ),
+        ),
+      );
+    }
+    if (fields.childElementCount > 0) {
+      panel.append(fields);
+    }
+
+    if (hasSignatureField(instance.type)) {
+      panel.append(renderSignature(signature));
+    }
+    return panel;
+  }
+
+  function renderEditor(
+    instance: FormInstance | null,
+    signature: SignatureImage | null,
+  ): void {
     editor.replaceChildren();
     activeInstanceId = instance?.id ?? null;
 
@@ -565,6 +664,7 @@ export function createReimbursementView(
         ? renderTravelSummary(instance.data)
         : renderSimpleSummary(instance),
     );
+    form.append(renderApprovals(instance, signature));
     editor.append(form);
 
     updateSummary(instance);
@@ -683,7 +783,7 @@ export function createReimbursementView(
     const active =
       state.instances.find((item) => item.id === state.activeInstanceId) ??
       null;
-    renderEditor(active);
+    renderEditor(active, state.signature);
     renderInvoices(state);
     if (!busy) {
       exportButton.disabled =
@@ -709,7 +809,7 @@ export function createReimbursementView(
         status.append(reveal);
       }
     },
-    setBusy(nextBusy, text = "") {
+    setBusy(nextBusy, text = "", busyLabel = "正在导出…") {
       busy = nextBusy;
       root.classList.toggle("is-busy", busy);
       exportButton.disabled = busy;
@@ -720,7 +820,12 @@ export function createReimbursementView(
       deleteButton.disabled = busy || !activeInstanceId;
       moveLeftButton.disabled = busy || !activeInstanceId;
       moveRightButton.disabled = busy || !activeInstanceId;
-      exportButton.textContent = busy ? "正在导出…" : "导出 PDF";
+      for (const node of root.querySelectorAll<HTMLButtonElement>(
+        "[data-signature-action]",
+      )) {
+        node.disabled = busy;
+      }
+      exportButton.textContent = busy ? busyLabel : "导出 PDF";
       if (text) {
         this.setStatus(text, "info");
       }

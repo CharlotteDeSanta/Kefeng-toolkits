@@ -3,6 +3,7 @@ use std::path::{Path, PathBuf};
 use tauri::ipc::{InvokeBody, Request, Response};
 
 const MAX_BINARY_FILE_BYTES: u64 = 200 * 1024 * 1024;
+const MAX_SIGNATURE_BYTES: u64 = 10 * 1024 * 1024;
 
 fn has_extension(path: &Path, extension: &str) -> bool {
     path.extension()
@@ -42,6 +43,33 @@ fn read_binary_file(path: String) -> Result<Response, String> {
     }
     if metadata.len() > MAX_BINARY_FILE_BYTES {
         return Err("发票文件超过 200 MB 限制".into());
+    }
+
+    let bytes = std::fs::read(file_path).map_err(|error| format!("读取文件失败：{error}"))?;
+    Ok(Response::new(bytes))
+}
+
+/// 读取用户通过原生对话框选择的 JPG/PNG 电子签名，以原始字节返回。
+#[tauri::command]
+fn read_image_file(path: String) -> Result<Response, String> {
+    let file_path = Path::new(&path);
+    if path.trim().is_empty() {
+        return Err("读取路径为空".into());
+    }
+    if !has_extension(file_path, "png")
+        && !has_extension(file_path, "jpg")
+        && !has_extension(file_path, "jpeg")
+    {
+        return Err("签名图片必须使用 .png/.jpg/.jpeg 扩展名".into());
+    }
+
+    let metadata =
+        std::fs::metadata(file_path).map_err(|error| format!("读取文件信息失败：{error}"))?;
+    if !metadata.is_file() {
+        return Err("读取目标不是文件".into());
+    }
+    if metadata.len() > MAX_SIGNATURE_BYTES {
+        return Err("签名图片超过 10 MB 限制".into());
     }
 
     let bytes = std::fs::read(file_path).map_err(|error| format!("读取文件失败：{error}"))?;
@@ -116,6 +144,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             save_workbook,
             read_binary_file,
+            read_image_file,
             write_binary_file,
             read_system_font
         ])

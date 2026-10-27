@@ -19,6 +19,10 @@ import {
   normalizeInstance,
 } from "./defaults";
 import {
+  APPROVAL_TEXT_FIELDS,
+  SIGNATURE_FORM_TYPES,
+} from "./approvals";
+import {
   buildPdfValues,
   isValidIsoDate,
   splitIsoDate,
@@ -158,6 +162,7 @@ describe("PDF value mapping", () => {
     data.rows[0].departPlace = "无锡";
     data.rows[0].vehicleAmount = "123.45";
     data.extras.taxi = "20";
+    data.approvals.reviewer = "张三";
 
     const values = buildPdfValues({
       id: "t1",
@@ -176,6 +181,8 @@ describe("PDF value mapping", () => {
     expect(values.extraTaxi).toBe("20.00");
     expect(values.grandTotal).toBe("143.45");
     expect(values.payable).toBe("143.45");
+    expect(values.approvals.reviewer).toBe("张三");
+    expect(values.approvals.cashier).toBe("");
   });
 
   it("maps general amounts into digit cells", () => {
@@ -288,6 +295,7 @@ describe("draft normalization", () => {
         date: "2026-10-21",
         attachmentCount: "3",
         rows: [{ date: "2026-10-01", description: "测试", amount: "12.34" }],
+        approvals: { reviewer: "李四" },
       },
     });
 
@@ -300,9 +308,40 @@ describe("draft normalization", () => {
     expect(instance.data.rows[0].amount).toBe("12.34");
     expect(instance.data.rows[18].description).toBe("");
     expect(instance.data.attachmentCount).toBe("3");
+    expect(instance.data.approvals.reviewer).toBe("李四");
+    expect(instance.data.approvals.finance).toBe("");
   });
 
   it("rejects unknown form types", () => {
     expect(normalizeInstance({ type: "unknown" })).toBeNull();
+  });
+});
+
+describe("approval field configuration", () => {
+  it("uses signature images instead of reimburser text on travel, summary, and private-car", () => {
+    expect(APPROVAL_TEXT_FIELDS.travel.map((field) => field.key)).toEqual([
+      "reviewer",
+      "cashier",
+      "supervisor",
+    ]);
+    expect(APPROVAL_TEXT_FIELDS.summary.map((field) => field.key)).toEqual([
+      "reviewer",
+      "finance",
+      "cashier",
+      "supervisor",
+    ]);
+    expect(APPROVAL_TEXT_FIELDS.general.map((field) => field.key)).toContain(
+      "reimburser",
+    );
+    expect(APPROVAL_TEXT_FIELDS["private-car"].map((field) => field.key)).toEqual([
+      "reviewer",
+      "cashier",
+    ]);
+    expect([...SIGNATURE_FORM_TYPES]).toEqual([
+      "travel",
+      "general",
+      "summary",
+      "private-car",
+    ]);
   });
 });

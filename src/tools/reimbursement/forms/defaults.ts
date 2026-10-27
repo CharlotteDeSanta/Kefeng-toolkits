@@ -1,5 +1,6 @@
 import {
   FORM_LABELS,
+  type ApprovalInfo,
   type FormInstance,
   type FormType,
   type GeneralData,
@@ -31,6 +32,16 @@ function asRecord(value: unknown): Record<string, unknown> {
   return typeof value === "object" && value !== null
     ? (value as Record<string, unknown>)
     : {};
+}
+
+export function createApprovals(): ApprovalInfo {
+  return {
+    reviewer: "",
+    finance: "",
+    cashier: "",
+    supervisor: "",
+    reimburser: "",
+  };
 }
 
 function createTravelRow(): TravelRow {
@@ -78,6 +89,7 @@ export function createTravelData(): TravelData {
     extras: createTravelExtras(),
     prepayment: "",
     attachmentCount: "",
+    approvals: createApprovals(),
   };
 }
 
@@ -90,6 +102,7 @@ export function createGeneralData(): GeneralData {
     date: todayIso(),
     rows: Array.from({ length: 19 }, createGeneralRow),
     attachmentCount: "",
+    approvals: createApprovals(),
   };
 }
 
@@ -101,6 +114,7 @@ export function createSummaryData(): SummaryData {
   return {
     date: todayIso(),
     rows: Array.from({ length: 19 }, createSummaryRow),
+    approvals: createApprovals(),
   };
 }
 
@@ -124,6 +138,7 @@ export function createPrivateCarData(): PrivateCarData {
     purpose: "",
     rate: "1.00",
     trips: Array.from({ length: 10 }, createPrivateCarTrip),
+    approvals: createApprovals(),
   };
 }
 
@@ -202,6 +217,7 @@ export function normalizeData(type: FormType, raw: unknown): FormInstance["data"
         ),
         rows: mergeRows(27, createTravelRow, record.rows),
         extras: mergeStrings(createTravelExtras(), record.extras),
+        approvals: mergeStrings(createApprovals(), record.approvals),
       };
     }
     case "general": {
@@ -216,6 +232,7 @@ export function normalizeData(type: FormType, raw: unknown): FormInstance["data"
           record,
         ),
         rows: mergeRows(19, createGeneralRow, record.rows),
+        approvals: mergeStrings(createApprovals(), record.approvals),
       };
     }
     case "summary": {
@@ -224,6 +241,7 @@ export function normalizeData(type: FormType, raw: unknown): FormInstance["data"
         ...defaults,
         ...mergeStrings({ date: defaults.date }, record),
         rows: mergeRows(19, createSummaryRow, record.rows),
+        approvals: mergeStrings(createApprovals(), record.approvals),
       };
     }
     case "private-car": {
@@ -242,6 +260,7 @@ export function normalizeData(type: FormType, raw: unknown): FormInstance["data"
           record,
         ),
         trips: mergeRows(10, createPrivateCarTrip, record.trips),
+        approvals: mergeStrings(createApprovals(), record.approvals),
       };
     }
   }

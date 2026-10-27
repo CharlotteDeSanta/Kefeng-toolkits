@@ -1,6 +1,7 @@
-import type { PDFFont, PDFPage } from "pdf-lib";
-import type { PdfField, PdfFieldNode } from "../types";
-import { isPdfField } from "../types";
+import type { PDFFont, PDFImage, PDFPage } from "pdf-lib";
+import type { PdfField, PdfFieldNode, PdfImageField } from "../types";
+import { isPdfField, isPdfImageField } from "../types";
+import { fitImageRect } from "./signature";
 
 export interface RenderFonts {
   simsun: PDFFont;
@@ -136,12 +137,40 @@ function drawField(
   }
 }
 
+/** 在“报销人”/“报销人签章”右侧的空白单元格内等比居中绘制个人签名，不覆盖标签文字。 */
+export function drawSignatureImage(
+  page: PDFPage,
+  field: PdfImageField,
+  image: PDFImage,
+): void {
+  if (field.width <= 2 || field.height <= 2) {
+    return;
+  }
+
+  const padding = Math.max(0, field.padding ?? 3);
+  const fitted = fitImageRect(image.width, image.height, field, padding);
+  if (!fitted) {
+    return;
+  }
+
+  page.drawImage(image, {
+    x: fitted.x,
+    y: fitted.y,
+    width: fitted.width,
+    height: fitted.height,
+  });
+}
+
 export function drawPdfFields(
   page: PDFPage,
   fields: PdfFieldNode,
   values: unknown,
   fonts: RenderFonts,
 ): void {
+  if (isPdfImageField(fields)) {
+    return;
+  }
+
   if (isPdfField(fields)) {
     if (typeof values === "string") {
       drawField(page, fields, values, fonts);
