@@ -64,6 +64,13 @@ function New-ImageField($Worksheet, [string]$Address, [double]$PrintLeft, [doubl
   return $field
 }
 
+function Set-DateFieldStyle($Field, [double]$OffsetY) {
+  # 日期数字需要比单元格原字号更大，才能与“年/月/日”汉字的视觉高度协调。
+  $Field.fontSize = 12.5
+  $Field.wrap = $false
+  $Field.y = [math]::Round($Field.y - $OffsetY, 2)
+}
+
 function Build-TravelFields($Worksheet, [double]$PrintLeft, [double]$PrintTop, [double]$Scale) {
   $fields = [ordered]@{}
   $fields.number = New-Field $Worksheet "C2:D2" $PrintLeft $PrintTop $Scale
@@ -129,6 +136,9 @@ function Build-GeneralFields($Worksheet, [double]$PrintLeft, [double]$PrintTop, 
   $fields.dateYear = New-Field $Worksheet "E3" $PrintLeft $PrintTop $Scale
   $fields.dateMonth = New-Field $Worksheet "G3" $PrintLeft $PrintTop $Scale
   $fields.dateDay = New-Field $Worksheet "I3" $PrintLeft $PrintTop $Scale
+  foreach ($field in @($fields.dateYear, $fields.dateMonth, $fields.dateDay)) {
+    Set-DateFieldStyle $field 1.25
+  }
 
   $rows = @()
   for ($rowIndex = 6; $rowIndex -le 24; $rowIndex++) {
@@ -172,6 +182,9 @@ function Build-SummaryFields($Worksheet, [double]$PrintLeft, [double]$PrintTop, 
   $fields.dateYear = New-Field $Worksheet "J2:L2" $PrintLeft $PrintTop $Scale
   $fields.dateMonth = New-Field $Worksheet "N2:O2" $PrintLeft $PrintTop $Scale
   $fields.dateDay = New-Field $Worksheet "Q2:R2" $PrintLeft $PrintTop $Scale
+  foreach ($field in @($fields.dateYear, $fields.dateMonth, $fields.dateDay)) {
+    Set-DateFieldStyle $field 2.5
+  }
 
   $rows = @()
   for ($rowIndex = 5; $rowIndex -le 23; $rowIndex++) {

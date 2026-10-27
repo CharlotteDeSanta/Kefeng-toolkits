@@ -5451,35 +5451,35 @@
       "dateYear": {
         "address": "E3",
         "x": 156.87,
-        "y": 728.25,
+        "y": 727.0,
         "width": 30.66,
         "height": 18.83,
         "font": "Calibri",
-        "fontSize": 9.5,
+        "fontSize": 12.5,
         "align": "right",
-        "wrap": true
+        "wrap": false
       },
       "dateMonth": {
         "address": "G3",
         "x": 218.18,
-        "y": 728.25,
+        "y": 727.0,
         "width": 30.66,
         "height": 18.83,
         "font": "Calibri",
-        "fontSize": 9.5,
+        "fontSize": 12.5,
         "align": "right",
-        "wrap": true
+        "wrap": false
       },
       "dateDay": {
         "address": "I3",
         "x": 279.5,
-        "y": 728.25,
+        "y": 727.0,
         "width": 30.66,
         "height": 18.83,
         "font": "Calibri",
-        "fontSize": 9.5,
+        "fontSize": 12.5,
         "align": "right",
-        "wrap": true
+        "wrap": false
       },
       "rows": [
         {
@@ -8674,35 +8674,35 @@
       "dateYear": {
         "address": "J2:L2",
         "x": 320.74,
-        "y": 741.9,
+        "y": 739.4,
         "width": 42.32,
         "height": 18.6,
         "font": "Calibri",
-        "fontSize": 9.3,
+        "fontSize": 12.5,
         "align": "center",
-        "wrap": true
+        "wrap": false
       },
       "dateMonth": {
         "address": "N2:O2",
         "x": 377.17,
-        "y": 741.9,
+        "y": 739.4,
         "width": 28.21,
         "height": 18.6,
         "font": "Calibri",
-        "fontSize": 10.23,
+        "fontSize": 12.5,
         "align": "center",
-        "wrap": true
+        "wrap": false
       },
       "dateDay": {
         "address": "Q2:R2",
         "x": 419.49,
-        "y": 741.9,
+        "y": 739.4,
         "width": 28.21,
         "height": 18.6,
         "font": "Calibri",
-        "fontSize": 10.23,
+        "fontSize": 12.5,
         "align": "center",
-        "wrap": true
+        "wrap": false
       },
       "rows": [
         {
